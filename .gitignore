@@ -1,0 +1,6 @@
+# Nix + direnv artifacts
+.envrc
+.result
+.nix-gc*
+.gopath/
+
