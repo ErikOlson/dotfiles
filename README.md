@@ -1,6 +1,14 @@
-# Erik's Dotfiles  
+# Erik's Dotfiles
+
+A fully reproducible and portable macOS development environment using:
+
+- 🧰 [Homebrew](https://brew.sh) for native apps and CLI tools
+- ❄️ [Nix + flakes](https://nixos.org/) for isolated, versioned dev environments
+- 📂 Symbolic dotfile syncing with backup safety
+- 🔁 `bootstrap.sh` for clean setup on new machines
+- 🧠 Designed for Go, Rust, Zig, Odin, C/C++, JS/TS, and Python development
   
-Portable macOS development setup with Homebrew + Nix.
+
 
 ## Setup Steps  
   
@@ -8,7 +16,7 @@ Portable macOS development setup with Homebrew + Nix.
 git clone git@github.com:yourusername/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./bootstrap.sh
-
+```
 
 
 ## 🧪 Global Dev Environment (Nix + direnv)
@@ -23,7 +31,7 @@ To manually perform this step:
 ```bash
 echo 'use flake ~/dotfiles/dev-env' > ~/.envrc
 direnv allow ~
-
+```
 
 
 
