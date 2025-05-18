@@ -30,7 +30,7 @@
               pkgs.zig pkgs.odin pkgs.zls
 
               # JavaScript / TypeScript
-              pkgs.nodejs pkgs.eslint pkgs.prettier pkgs.typescript-language-server
+              pkgs.nodejs pkgs.nodePackages.eslint pkgs.nodePackages.prettier pkgs.typescript-language-server
 
               # Python
               pkgs.python3 pkgs.pyright pkgs.black
