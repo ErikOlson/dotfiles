@@ -44,6 +44,7 @@ doctor:
 	@test -f ~/.zprofile && echo "✅ .zprofile present" || echo "❌ .zprofile missing"
 	@test -f ~/.envrc && echo "✅ .envrc present" || echo "❌ .envrc missing"
 	@direnv status | grep "Found RC file" || echo "⚠️  direnv not active in this shell"
+	@which odin && odin version || echo "⚠️  odin not found (expected in nix dev shell)"
 
 lint:
 	@echo "🔍 Linting dotfiles setup..."

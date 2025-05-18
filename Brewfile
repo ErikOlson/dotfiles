@@ -1,14 +1,10 @@
-tap "homebrew/bundle"
-tap "homebrew/cask"
-tap "homebrew/cask-fonts"
-tap "odin-lang/homebrew-odin"
-
 brew "go"
 brew "rust"
 brew "zig"
-brew "odin"
+#brew "odin"
+
 brew "neovim"
-brew "ghostty"
+#brew "ghostty"
 
 brew "lua-language-server"
 brew "gopls"
@@ -26,10 +22,10 @@ brew "direnv"
 brew "zsh"
 
 cask "google-chrome"
+cask "ghostty"
 cask "rectangle"
 cask "font-jetbrains-mono"
 cask "raycast"
 cask "stats"
 cask "1password"
-cask "spotify"
 
