@@ -43,8 +43,7 @@ echo "📦 Installing Brewfile packages..."
 brew bundle --file="$HOME/dotfiles/Brewfile"
 
 # --- Symlink configs and set script permissions ---
-cd "$HOME/dotfiles"
-./setup.sh
+"$HOME/dotfiles/setup.sh"
 
 # --- Enable direnv-based global dev shell ---
 if command -v direnv >/dev/null 2>&1; then
