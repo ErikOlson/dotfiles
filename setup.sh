@@ -34,6 +34,8 @@ backup_and_link "$DOTFILES/.zprofile" "$HOME/.zprofile"
 backup_and_link "$DOTFILES/.zshrc" "$HOME/.zshrc"
 backup_and_link "$DOTFILES/config/nvim" "$HOME/.config/nvim"
 backup_and_link "$DOTFILES/config/ghostty" "$HOME/.config/ghostty"
+backup_and_link "$DOTFILES/config/starship.toml" "$HOME/.config/starship.toml"
+
 
 echo "🔒 Making .sh scripts executable..."
 find "$DOTFILES" -type f -name "*.sh" -exec chmod +x {} \;

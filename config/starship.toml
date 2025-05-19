@@ -1,0 +1,10 @@
+# ~/.config/starship.toml
+
+
+# disable impure message since this is old-nix style and we're using flake based new-nix style
+[nix_shell]
+disabled = false
+impure_msg = ""
+pure_msg = ""
+format = "via ❄️ [$name]($style) "
+
