@@ -10,8 +10,15 @@ mkdir -p "$BACKUP_DIR"
 backup_and_link() {
     local src=$1
     local dest=$2
-    local filename=$(basename "$dest")
+    local filename
+    filename=$(basename "$dest")
     local backup_path="$BACKUP_DIR/$filename.backup.$(date +%Y%m%d%H%M%S)"
+
+    # 🛡 Skip if already correctly symlinked
+    if [ -L "$dest" ] && [ "$(readlink "$dest")" == "$src" ]; then
+        echo "⚠️  $dest already symlinks to $src — skipping"
+        return
+    fi
 
     if [ -e "$dest" ] && [ ! -L "$dest" ]; then
         mv "$dest" "$backup_path"
