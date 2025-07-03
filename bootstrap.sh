@@ -3,6 +3,12 @@ set -e
 
 echo "🚀 Starting bootstrap process..."
 
+# --- Shell check ---
+echo "🕵️  Detected shell: $SHELL"
+if [[ "$SHELL" != */zsh ]]; then
+  echo "⚠️  Warning: This setup is optimized for Zsh, not $SHELL"
+fi
+
 # --- Homebrew ---
 if ! command -v brew >/dev/null 2>&1; then
     echo "🧪 Installing Homebrew..."
@@ -22,7 +28,7 @@ else
     echo "✅ Nix already installed."
 fi
 
-# --- Ensure nix is sourced in .zprofile ---
+# --- Ensure Nix is sourced in .zprofile ---
 if ! grep -q 'nix-daemon.sh' "$HOME/.zprofile"; then
     echo "🔧 Adding Nix environment to .zprofile..."
     {
