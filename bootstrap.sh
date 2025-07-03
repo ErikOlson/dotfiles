@@ -3,6 +3,27 @@ set -e
 
 echo "🚀 Starting bootstrap process..."
 
+# --- OS Detection ---
+OS="$(uname)"
+case "$OS" in
+  Darwin)
+    echo "🖥️  macOS detected"
+    ;;
+  Linux)
+    echo "⚠️  Linux detected — this script doesn't yet support Linux. Exiting."
+    # TODO: Add Linux support in the future
+    exit 1
+    ;;
+  MINGW* | MSYS* | CYGWIN* | Windows_NT)
+    echo "❌ Windows is not supported by this bootstrap script."
+    exit 1
+    ;;
+  *)
+    echo "❓ Unknown OS: $OS — exiting for safety."
+    exit 1
+    ;;
+esac
+
 # --- Shell check ---
 echo "🕵️  Detected shell: $SHELL"
 if [[ "$SHELL" != */zsh ]]; then
@@ -22,27 +43,25 @@ fi
 
 # --- Nix ---
 if ! command -v nix >/dev/null 2>&1; then
-    echo "🧪 Installing Nix (multi-user)..."
-    curl -L https://nixos.org/nix/install | sh
+    echo "🧪 Installing Nix (multi-user, no profile modification)..."
+    curl -L https://nixos.org/nix/install | sh -s -- --no-modify-profile
 else
     echo "✅ Nix already installed."
 fi
 
-# --- Ensure Nix is sourced in .zprofile ---
-if ! grep -q 'nix-daemon.sh' "$HOME/.zprofile"; then
-    echo "🔧 Adding Nix environment to .zprofile..."
-    {
-      echo ''
-      echo '# Load Nix (multi-user install)'
-      echo 'if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then'
-      echo '  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
-      echo 'fi'
-    } >> "$HOME/.zprofile"
+# --- Check if .zprofile is configured for Nix ---
+ZPROFILE="$HOME/.zprofile"
+if [ ! -f "$ZPROFILE" ]; then
+    echo "⚠️  No .zprofile found in home directory."
+    echo "🔧 You may need to run setup.sh to symlink your dotfiles version."
+elif ! grep -q 'nix-daemon.sh' "$ZPROFILE"; then
+    echo "⚠️  .zprofile exists but does not include Nix sourcing."
+    echo "👉  Please update your dotfiles/.zprofile or re-run setup.sh to apply it."
 else
-    echo "ℹ️  Nix already present in .zprofile"
+    echo "✅ Nix sourcing found in .zprofile"
 fi
 
-# --- Load Nix into current shell ---
+# --- Load Nix into current shell (helpful right after install) ---
 if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
     . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 fi
