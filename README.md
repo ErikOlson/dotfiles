@@ -13,7 +13,7 @@ A fully reproducible and portable macOS development environment using:
 ## Setup Steps  
   
 ```bash
-git clone git@github.com:yourusername/dotfiles.git ~/dotfiles
+git clone git@github.com:erikolson/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./bootstrap.sh
 ```
