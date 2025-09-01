@@ -28,4 +28,5 @@ cask "font-jetbrains-mono"
 cask "raycast"
 cask "stats"
 cask "1password"
+cask "intellij-idea"
 
