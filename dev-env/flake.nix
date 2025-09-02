@@ -44,8 +44,10 @@
 
             shellHook = ''
               echo "🧪 Entered global dev shell for system: ${system}"
-              export GOPATH=$PWD/.gopath
-              export PATH=$GOPATH/bin:$PATH
+              export GOPATH="$HOME/.gopath"
+              export GOBIN="$GOPATH/bin"
+              mkdir -p "$GOBIN"
+              export PATH="$GOBIN:$PATH"
             '';
           };
         });
