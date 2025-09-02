@@ -42,15 +42,16 @@
               pkgs.nil
             ];
 
-            shellHook = ''
-              echo "🧪 Entered global dev shell for system: ${system}"
-              export GOPATH="$HOME/.gopath"
-              export GOBIN="$GOPATH/bin"
-              mkdir -p "$GOBIN"
-              export PATH="$GOBIN:$PATH"
-            '';
-          };
-        });
-    };
+          shellHook = ''
+            echo "🧪 Entered global dev shell (${system})"
+            # Global, brew-style GOPATH for cache
+            export GOPATH="$HOME/.gopath"
+            mkdir -p "$GOPATH/pkg/mod"    # ensure cache dir exists
+            # Do NOT prepend $GOBIN — we’re not using `go install`
+            # Keep PATH purely from Nix + your shell; avoids stray binaries shadowing Nix ones
+          '';
+        };
+      });
+  };
 }
 
