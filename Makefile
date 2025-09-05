@@ -1,4 +1,4 @@
-.PHONY: all bootstrap setup dev versions update clean doctor lint backup
+.PHONY: all bootstrap setup dev versions update clean doctor lint backup brew flake
 
 # --- Primary flow ---
 all: bootstrap
@@ -12,8 +12,25 @@ setup:
 dev:
 	nix develop ~/dotfiles/dev-env
 
-# --- Utility targets ---
+# --- Package management ---
 
+brew:
+	@echo "🍺 Updating Homebrew bundle..."
+	brew bundle --file=~/dotfiles/Brewfile
+	@echo "✅ Homebrew packages installed/updated."
+
+flake:
+	cd ~/dotfiles/dev-env && nix flake update
+	@echo "❄️ Flake updated."
+
+update: brew flake
+	@echo "✅ System packages updated (brew + nix flake)."
+
+clean:
+	nix-collect-garbage -d
+	@echo "🧹 Cleaned up unused Nix packages."
+
+# --- Utility targets (versions, health, lint, backup) ---
 versions:
 	@echo "🧪 Tool versions in current shell:"
 	@which go && go version
@@ -24,16 +41,6 @@ versions:
 	@which python3 && python3 --version
 	@which clang && clang --version | head -n 1
 	@which g++ && g++ --version | head -n 1
-
-update:
-	cd ~/dotfiles/dev-env && nix flake update
-	@echo "✅ Flake updated."
-
-clean:
-	nix-collect-garbage -d
-	@echo "🧹 Cleaned up unused Nix packages."
-
-# --- Health / lint / backup ---
 
 doctor:
 	@echo "🩺 Checking environment..."
