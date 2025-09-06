@@ -20,7 +20,7 @@ brew:
 	@echo "✅ Homebrew packages installed/updated."
 
 flake:
-	cd ~/dotfiles/dev-env && nix flake update
+	cd ~/dotfiles/dev-env && nix --extra-experimental-features 'nix-command flakes' flake update
 	@echo "❄️ Flake updated."
 
 update: brew flake
