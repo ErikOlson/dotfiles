@@ -9,12 +9,12 @@ brew "lua-language-server"
 #brew "gopls"
 #brew "rust-analyzer"
 #brew "zls"
-brew "typescript-language-server"
+
 brew "eslint"
 brew "prettier"
 
 brew "fzf"
-brew "ripgrep"
+
 brew "fd"
 brew "starship"
 brew "direnv"
