@@ -24,3 +24,8 @@ if [ -f "$HOME/.zshrc.local" ]; then
   source "$HOME/.zshrc.local"
 fi
 
+# Open files or vaults in Obsidian
+obs() {
+  # If an argument is provided, open that file/vault. Otherwise, just open the app.
+  open -a "Obsidian" "$1"
+}
