@@ -7,5 +7,6 @@ vim.g.mapleader = " "
 --vim.keymap.set("n", "<leader>fh", require("telescope.builtin").help_tags, {})
 
 vim.keymap.set("n", "<leader>ll", "<cmd>Lazy<CR>", { desc = "Open Lazy UI" })
+vim.keymap.set("n", "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", { desc = "Markdown Preview" })
 
 
