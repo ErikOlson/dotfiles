@@ -80,6 +80,15 @@
               EOF
               chmod +x "$AI_TOOLS_BIN/claude"
 
+              # --- Codex CLI wrapper (npx, no global install) ---
+              cat > "$AI_TOOLS_BIN/codex" <<'EOF'
+              #!/usr/bin/env bash
+              # Pin a version for reproducibility (recommended), or use @latest:
+              # exec npx -y @openai/codex@0.31.0 "$@"
+              exec npx -y @openai/codex@latest "$@"
+              EOF
+              chmod +x "$AI_TOOLS_BIN/codex"
+
               # Quick tip on first entry
               if command -v gemini >/dev/null && command -v claude >/dev/null; then
                 echo "🤖 AI CLIs ready: 'gemini' and 'claude' (first run will prompt login)"
