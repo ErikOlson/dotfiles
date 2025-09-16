@@ -29,4 +29,4 @@ cask "stats"
 cask "1password"
 cask "intellij-idea"
 cask "obsidian"
-
+cask "lens"
