@@ -8,5 +8,5 @@ vim.g.mapleader = " "
 
 vim.keymap.set("n", "<leader>ll", "<cmd>Lazy<CR>", { desc = "Open Lazy UI" })
 vim.keymap.set("n", "<leader>mp", "<cmd>MarkdownPreviewToggle<CR>", { desc = "Markdown Preview" })
-
+vim.keymap.set("n", "<leader>-", "<cmd>Ex<CR>", { desc = "Explore the directory" })
 
