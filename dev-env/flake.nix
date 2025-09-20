@@ -36,7 +36,10 @@
               pkgs.python3 pkgs.pyright pkgs.black
 
               # C/C++
-              pkgs.gcc pkgs.clang
+              pkgs.gcc
+              pkgs.clang              # compiler
+              pkgs.clang-tools        # provides clangd (LSP) + clang-format
+              
 
               # Nix LSP
               pkgs.nil
