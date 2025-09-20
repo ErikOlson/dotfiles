@@ -69,3 +69,34 @@ backup:
 		fi \
 	done
 
+# --- Docker helper targets ---
+.PHONY: docker-up docker-down docker-backend docker-switch-to-desktop docker-switch-to-colima docker-switch
+DOCKER_HELPERS := ./scripts/docker
+
+docker-up:
+	@DOCKER_BACKEND?=auto; \
+	$(DOCKER_HELPERS)/docker-bootstrap.sh --backend $$DOCKER_BACKEND --start --timeout 90
+
+docker-down:
+	@# Stop Colima if installed (no error if already stopped)
+	@command -v colima >/dev/null 2>&1 && { colima stop >/dev/null 2>&1 || true; echo "Colima: stop requested"; } || true
+	@# Quit Docker Desktop (no error if not running)
+	@osascript -e 'quit app "Docker"' >/dev/null 2>&1 || true
+	@echo "Docker backends: stop complete"
+
+docker-backend:
+	@$(DOCKER_HELPERS)/docker-bootstrap.sh --quiet --no-aliases >/dev/null || true
+	@/bin/echo -n "backend: "; \
+	if /usr/bin/pgrep -f "Docker Desktop.app" >/dev/null 2>&1; then echo desktop; \
+	elif command -v colima >/dev/null 2>&1 && colima status >/dev/null 2>&1; then echo colima; \
+	else echo none; fi
+
+docker-switch-to-desktop:
+	@$(DOCKER_HELPERS)/docker-switch.sh desktop
+
+docker-switch-to-colima:
+	@$(DOCKER_HELPERS)/docker-switch.sh colima
+
+docker-switch:
+	@[ -n "$(TARGET)" ] || { echo "Usage: make docker-switch TARGET=desktop|colima"; exit 2; }
+	@$(DOCKER_HELPERS)/docker-switch.sh $(TARGET)
