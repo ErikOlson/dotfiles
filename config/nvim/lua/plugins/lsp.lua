@@ -1,21 +1,28 @@
 -- ~/.config/nvim/lua/plugins/lsp.lua
+-- Uses the new Neovim 0.11+ API: vim.lsp.config()
+-- Falls back to lspconfig.setup() automatically on older versions.
+
 return {
   "neovim/nvim-lspconfig",
   config = function()
-    local lspconfig = require("lspconfig")
-
-    -- Advertise completion capabilities to LSPs (integrates with nvim-cmp if present)
-    local ok, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
-    local capabilities = ok and cmp_nvim_lsp.default_capabilities()
+    -- capabilities (so LSP integrates with nvim-cmp if present)
+    local ok_cmp, cmp_nvim_lsp = pcall(require, "cmp_nvim_lsp")
+    local capabilities = ok_cmp and cmp_nvim_lsp.default_capabilities()
       or vim.lsp.protocol.make_client_capabilities()
 
+    -- Compat shim: prefer the new API, fall back to lspconfig.<server>.setup
+    local use_new = vim.lsp and vim.lsp.config
+    local configure = use_new and function(server, opts) vim.lsp.config(server, opts) end
+      or function(server, opts) require("lspconfig")[server].setup(opts) end
+
+    -- ────────────────────────────────────────────────────────────────────────────
     -- Lua (Neovim config)
-    lspconfig.lua_ls.setup({
+    configure("lua_ls", {
       capabilities = capabilities,
       settings = {
         Lua = {
           runtime = { version = "LuaJIT" },
-          diagnostics = { globals = { "vim" } }, -- don't warn on 'vim'
+          diagnostics = { globals = { "vim" } },
           workspace = {
             library = vim.api.nvim_get_runtime_file("", true),
             checkThirdParty = false,
@@ -26,46 +33,43 @@ return {
     })
 
     -- Go
-    lspconfig.gopls.setup({
+    configure("gopls", {
       capabilities = capabilities,
-      -- settings = { gopls = { hints = { assignVariableTypes = true, compositeLiteralFields = true } } },
+      -- settings = { gopls = { hints = { assignVariableTypes = true } } },
     })
 
     -- Rust
-    lspconfig.rust_analyzer.setup({
+    configure("rust_analyzer", {
       capabilities = capabilities,
       -- settings = { ["rust-analyzer"] = { cargo = { allFeatures = true } } },
     })
 
     -- Zig
-    lspconfig.zls.setup({
+    configure("zls", {
       capabilities = capabilities,
     })
 
     -- TypeScript / JavaScript (was 'tsserver')
-    lspconfig.ts_ls.setup({
+    configure("ts_ls", {
       capabilities = capabilities,
-      -- Example inlay hints (server must support them)
       -- settings = {
       --   typescript = { inlayHints = { includeInlayParameterNameHints = "all" } },
       --   javascript = { inlayHints = { includeInlayParameterNameHints = "all" } },
       -- },
     })
-    -- could switch ts_ls to vtsls - would need to add vtsls to flake
-    -- lspconfig.vtsls.setup({ capabilities = capabilities })
 
     -- Python
-    lspconfig.pyright.setup({
+    configure("pyright", {
       capabilities = capabilities,
     })
 
     -- Nix
-    lspconfig.nil_ls.setup({
+    configure("nil_ls", {
       capabilities = capabilities,
     })
 
-    -- C/C++ (requires 'clangd' on PATH; pkgs.clang-tools added in flake to provide this)
-    lspconfig.clangd.setup({
+    -- C/C++  (requires 'clangd' on PATH; add pkgs.clang-tools in your flake)
+    configure("clangd", {
       capabilities = capabilities,
     })
   end,
