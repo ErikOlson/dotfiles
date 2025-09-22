@@ -18,7 +18,7 @@
 
             buildInputs = [
               # Go
-              pkgs.go pkgs.gopls
+              pkgs.go pkgs.gopls pkgs.protoc-gen-go
 
               # Rust
               pkgs.rustc pkgs.cargo pkgs.rust-analyzer pkgs.clippy pkgs.rustfmt
@@ -39,10 +39,12 @@
               pkgs.gcc
               pkgs.clang              # compiler
               pkgs.clang-tools        # provides clangd (LSP) + clang-format
-              
 
               # Nix LSP
               pkgs.nil
+
+              # Protobuf
+              pkgs.protobuf
 
               # Nice-to-have for Claude Code project search, etc.
               pkgs.ripgrep
