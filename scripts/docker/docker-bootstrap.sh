@@ -2,9 +2,7 @@
 set -euo pipefail
 
 # docker-bootstrap.sh
-# Helper for portable Docker env: add aliases, detect backend,
-# optionally start and wait (socket-based), then sync CLI context.
-#
+# Add aliases, detect backend, optionally start it (with prompts), wait on socket, then sync CLI context.
 # Usage:
 #   scripts/docker/docker-bootstrap.sh [--backend desktop|colima|auto] [--start] [--timeout SECS] [--no-aliases] [--quiet]
 #
@@ -20,27 +18,28 @@ DO_START=0
 log() { [ "$QUIET" -eq 0 ] && echo "$@"; }
 have() { command -v "$1" >/dev/null 2>&1; }
 
-# --- Desktop helpers ---
 desktop_is_running() { /usr/bin/pgrep -f "/Applications/Docker.app/Contents/MacOS/Docker" >/dev/null 2>&1; }
 desktop_app_present() { [ -d "/Applications/Docker.app" ] || [ -d "$HOME/Applications/Docker.app" ]; }
 desktop_sock() { echo "$HOME/.docker/run/docker.sock"; }
+colima_sock()  { echo "$HOME/.colima/${COLIMA_PROFILE:-default}/docker.sock"; }
 
-start_desktop() {
-  # Launch by bundle id (robust) and bring to foreground so prompts are visible
-  open -b com.docker.docker || open -a "Docker" || open -a "Docker Desktop" || true
-  osascript -e 'tell application id "com.docker.docker" to activate' >/dev/null 2>&1 || true
+prompt_open_desktop() {
+  osascript -e 'display dialog "Please OPEN Docker Desktop (Launchpad → Docker) and allow any prompts.\n\nClick Continue once Docker says it is running." buttons {"Continue"} default button "Continue"' >/dev/null 2>&1 || true
+  open -b com.docker.docker >/dev/null 2>&1 || open -a "Docker" >/dev/null 2>&1 || open -a "Docker Desktop" >/dev/null 2>&1 || true
+  if [ -t 0 ]; then
+    echo "👉 Please OPEN Docker Desktop, then press [Enter] to continue…"
+    read -r _ || true
+  fi
 }
 
 wait_for_desktop() {
   local i=0 sock; sock="$(desktop_sock)"
-  log -n "⏳ Waiting for Docker Desktop (timeout ${TIMEOUT}s)"
-  # wait until socket appears
+  [ "$QUIET" -eq 0 ] && printf "⏳ Waiting for Docker Desktop (timeout %ss)" "$TIMEOUT"
   while [ $i -lt "$TIMEOUT" ]; do
     [ -S "$sock" ] && break
     [ "$QUIET" -eq 0 ] && printf "."
     sleep 1; i=$((i+1))
   done
-  # then wait until daemon on that socket responds
   while [ $i -lt "$TIMEOUT" ]; do
     DOCKER_HOST="unix://$sock" docker version >/dev/null 2>&1 && { [ "$QUIET" -eq 0 ] && echo ""; return 0; }
     [ "$QUIET" -eq 0 ] && printf "."
@@ -51,9 +50,6 @@ wait_for_desktop() {
   return 1
 }
 
-# --- Colima helpers ---
-colima_sock()  { echo "$HOME/.colima/${COLIMA_PROFILE:-default}/docker.sock"; }
-
 start_colima() {
   log "🐳 Starting Colima..."
   have colima || { log "ℹ️  Colima not installed. brew install colima"; return 1; }
@@ -62,7 +58,7 @@ start_colima() {
 
 wait_for_colima() {
   local i=0 sock; sock="$(colima_sock)"
-  log -n "⏳ Waiting for Colima (timeout ${TIMEOUT}s)"
+  [ "$QUIET" -eq 0 ] && printf "⏳ Waiting for Colima (timeout %ss)" "$TIMEOUT"
   while [ $i -lt "$TIMEOUT" ]; do
     [ -S "$sock" ] && break
     [ "$QUIET" -eq 0 ] && printf "."
@@ -78,7 +74,6 @@ wait_for_colima() {
   return 1
 }
 
-# --- Context sync (call only AFTER daemon is ready) ---
 set_context_for_backend() {
   have docker || return 0
   case "$1" in
@@ -101,12 +96,8 @@ choose_backend() {
   case "$BACKEND" in
     desktop|colima) echo "$BACKEND"; return;;
     auto|"")
-      if desktop_is_running || desktop_app_present; then
-        echo "desktop"; return
-      fi
-      if have colima; then
-        echo "colima"; return
-      fi
+      if desktop_is_running || desktop_app_present; then echo "desktop"; return; fi
+      if have colima; then echo "colima"; return; fi
       echo "none"; return
       ;;
     *) echo "none"; return;;
@@ -157,12 +148,12 @@ log "backend: $CHOSEN"
 if [ "$DO_START" -eq 1 ]; then
   case "$CHOSEN" in
     desktop)
-      start_desktop
+      prompt_open_desktop
       if wait_for_desktop; then
         set_context_for_backend desktop
         log "✅ Docker Desktop is ready."
       else
-        log "💡 Tip: open Docker Desktop from Launchpad/Finder to surface any first-run prompts."
+        log "💡 Open Docker Desktop from Launchpad/Finder, then re-run: make DOCKER_BACKEND=desktop docker-up"
         exit 1
       fi
       ;;

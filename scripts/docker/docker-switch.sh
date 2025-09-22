@@ -6,48 +6,72 @@ set -euo pipefail
 # Default is "toggle". "--force" escalates quits if Desktop won't exit gracefully.
 
 TARGET="${1:-toggle}"
-FORCE="${2:-}"                         # pass "--force" to allow hard-kill when stopping Desktop
-STOP_WAIT_SECS="${STOP_WAIT_SECS:-10}" # graceful quit wait
-DOCKER_TIMEOUT="${DOCKER_TIMEOUT:-180}"# daemon readiness wait (seconds)
+FORCE="${2:-}"
+STOP_WAIT_SECS="${STOP_WAIT_SECS:-10}"
+DOCKER_TIMEOUT="${DOCKER_TIMEOUT:-180}"
 
 have() { command -v "$1" >/dev/null 2>&1; }
-
-# --- Desktop detection/launch helpers ---
 desktop_is_running() { /usr/bin/pgrep -f "/Applications/Docker.app/Contents/MacOS/Docker" >/dev/null 2>&1; }
 
-start_desktop() {
-  # Launch by bundle id (robust), then foreground so prompts are visible
-  open -b com.docker.docker || open -a "Docker" || open -a "Docker Desktop" || true
-  osascript -e 'tell application id "com.docker.docker" to activate' >/dev/null 2>&1 || true
+# --- Prompts (GUI via AppleScript, fallback to TTY) ---
+prompt_open_desktop() {
+  # Try GUI dialog; ignore errors if AppleScript unavailable
+  osascript -e 'display dialog "Please OPEN Docker Desktop (Launchpad → Docker) and allow any prompts.\n\nClick Continue once Docker says it is running." buttons {"Continue"} default button "Continue"' >/dev/null 2>&1 || true
+  # Also try to launch (harmless if already open)
+  open -b com.docker.docker >/dev/null 2>&1 || open -a "Docker" >/dev/null 2>&1 || open -a "Docker Desktop" >/dev/null 2>&1 || true
+  # TTY fallback
+  if [ -t 0 ]; then
+    echo "👉 Please OPEN Docker Desktop, then press [Enter] to continue…"
+    read -r _ || true
+  fi
 }
 
-stop_desktop_graceful() {
-  osascript -e 'quit app "Docker Desktop"' >/dev/null 2>&1 || true
-  osascript -e 'quit app "Docker"'         >/dev/null 2>&1 || true
-  for _ in $(seq 1 "$STOP_WAIT_SECS"); do
-    desktop_is_running || return 0
-    sleep 1
-  done
-  return 1
-}
-
-stop_desktop_hard() {
-  pkill -x "Docker Desktop" >/dev/null 2>&1 || true
-  pkill -x Docker           >/dev/null 2>&1 || true
-  pkill -f "/Applications/Docker.app/Contents/MacOS/Docker" >/dev/null 2>&1 || true
-  for _ in $(seq 1 5); do desktop_is_running || return 0; sleep 1; done
-  return 1
+prompt_quit_desktop() {
+  osascript -e 'display dialog "Please QUIT Docker Desktop (Docker → Quit).\n\nClick Continue after it has quit." buttons {"Continue"} default button "Continue"' >/dev/null 2>&1 || true
+  if [ -t 0 ]; then
+    echo "👉 Please QUIT Docker Desktop now, then press [Enter] to continue…"
+    read -r _ || true
+  fi
 }
 
 # --- Colima helpers ---
 stop_colima() { have colima && colima stop >/dev/null 2>&1 || true; }
-
 start_colima() {
   have colima || { echo "Colima not installed (brew install colima)"; exit 1; }
   colima status >/dev/null 2>&1 || colima start
 }
+colima_sock()  { echo "$HOME/.colima/${COLIMA_PROFILE:-default}/docker.sock"; }
 
-# --- Context sync (only call AFTER daemon is ready) ---
+# --- Desktop socket helpers ---
+desktop_sock() { echo "$HOME/.docker/run/docker.sock"; }
+
+# --- Waits (socket-based; don’t depend on current context) ---
+wait_for_desktop() {
+  local i=0 sock; sock="$(desktop_sock)"
+  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
+    [ -S "$sock" ] && break
+    sleep 1; i=$((i+1))
+  done
+  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
+    DOCKER_HOST="unix://$sock" docker version >/dev/null 2>&1 && return 0
+    sleep 1; i=$((i+1))
+  done
+  return 1
+}
+wait_for_colima() {
+  local i=0 sock; sock="$(colima_sock)"
+  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
+    [ -S "$sock" ] && break
+    sleep 1; i=$((i+1))
+  done
+  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
+    DOCKER_HOST="unix://$sock" docker version >/dev/null 2>&1 && return 0
+    sleep 1; i=$((i+1))
+  done
+  return 1
+}
+
+# --- Context sync (only AFTER daemon is ready) ---
 set_context_for_backend() {
   command -v docker >/dev/null 2>&1 || return 0
   case "$1" in
@@ -66,46 +90,14 @@ set_context_for_backend() {
   esac
 }
 
-# --- Socket-based readiness checks (don’t depend on current docker context) ---
-desktop_sock() { echo "$HOME/.docker/run/docker.sock"; }
-colima_sock()  { echo "$HOME/.colima/${COLIMA_PROFILE:-default}/docker.sock"; }
-
-wait_for_desktop() {
-  local i=0 sock; sock="$(desktop_sock)"
-  # wait for socket file to appear
-  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
-    [ -S "$sock" ] && break
-    sleep 1; i=$((i+1))
-  done
-  # then wait for daemon to respond on that socket
-  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
-    DOCKER_HOST="unix://$sock" docker version >/dev/null 2>&1 && return 0
-    sleep 1; i=$((i+1))
-  done
-  return 1
-}
-
-wait_for_colima() {
-  local i=0 sock; sock="$(colima_sock)"
-  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
-    [ -S "$sock" ] && break
-    sleep 1; i=$((i+1))
-  done
-  while [ $i -lt "$DOCKER_TIMEOUT" ]; do
-    DOCKER_HOST="unix://$sock" docker version >/dev/null 2;&1 && return 0
-    sleep 1; i=$((i+1))
-  done
-  return 1
-}
-
-# --- Current backend (best-effort) ---
+# --- Current backend ---
 current_backend() {
   if desktop_is_running; then echo desktop
   elif have colima && colima status >/dev/null 2>&1; then echo colima
   else echo none; fi
 }
 
-# Resolve TARGET (toggle -> the other one; default to desktop if none)
+# Resolve target
 if [[ "$TARGET" == "toggle" ]]; then
   CURR="$(current_backend)"
   if   [[ "$CURR" == "desktop" ]]; then TARGET="colima"
@@ -116,30 +108,32 @@ if [[ "$TARGET" != "desktop" && "$TARGET" != "colima" ]]; then
   echo "Usage: $0 [desktop|colima|toggle] [--force]"; exit 2
 fi
 
-# capture previous context so we can restore on failure
+# Capture previous context to restore on failure
 PREV_CTX="$(docker context show 2>/dev/null || echo default)"
 
 echo "🔀 Switching to: $TARGET"
 
 if [[ "$TARGET" == "desktop" ]]; then
   stop_colima || true
-  start_desktop
+  prompt_open_desktop
   if ! wait_for_desktop; then
-    echo "⚠️  Docker Desktop didn’t come up in time."
-    echo "   Tip: click the Docker icon in Launchpad/Finder to surface any first-run prompts."
-    # don’t change context on failure; restore if it was changed elsewhere
+    echo "⚠️  Docker Desktop did not become ready in ${DOCKER_TIMEOUT}s."
+    echo "   Open it from Launchpad/Finder and try again."
     docker context use "$PREV_CTX" >/dev/null 2>&1 || true
     exit 1
   fi
   set_context_for_backend desktop
 else
-  # stop Desktop gracefully; escalate only if --force supplied
   if desktop_is_running; then
-    if ! stop_desktop_graceful; then
+    # Ask the user to quit; escalate only with --force
+    prompt_quit_desktop
+    if desktop_is_running; then
       if [[ "$FORCE" == "--force" ]]; then
-        stop_desktop_hard || true
+        pkill -x "Docker Desktop" >/dev/null 2>&1 || true
+        pkill -x Docker         >/dev/null 2>&1 || true
+        pkill -f "/Applications/Docker.app/Contents/MacOS/Docker" >/dev/null 2>&1 || true
       else
-        echo "⚠️  Docker Desktop still running. Quit it or re-run with --force."
+        echo "⚠️  Docker Desktop still running. Re-run with '--force' to kill it, or quit it manually."
         docker context use "$PREV_CTX" >/dev/null 2>&1 || true
         exit 1
       fi
@@ -147,7 +141,7 @@ else
   fi
   start_colima
   if ! wait_for_colima; then
-    echo "⚠️  Colima didn’t come up in time."
+    echo "⚠️  Colima did not become ready in ${DOCKER_TIMEOUT}s."
     docker context use "$PREV_CTX" >/dev/null 2>&1 || true
     exit 1
   fi
