@@ -1,14 +1,6 @@
-#brew "go"
-#brew "rust"
-#brew "zig"
-#brew "odin"
-
 brew "neovim"
 
 brew "lua-language-server"
-#brew "gopls"
-#brew "rust-analyzer"
-#brew "zls"
 
 brew "eslint"
 brew "prettier"
@@ -30,3 +22,13 @@ cask "1password"
 cask "intellij-idea"
 cask "obsidian"
 cask "lens"
+
+# Docker CLI tools (keep these even if you switch backends)
+brew "docker"
+brew "docker-buildx"
+brew "docker-compose"
+
+# Docker Backends
+cask "docker"     # Docker Desktop (GUI, built-in k8s option)
+brew "colima"     # Lightweight VM backend (runs Docker daemon via Lima)
+
