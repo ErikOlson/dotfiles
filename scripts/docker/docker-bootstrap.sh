@@ -34,7 +34,12 @@ choose_backend() {
   esac
 }
 
-start_desktop() { log "🐳 Starting Docker Desktop..."; open -g -a "Docker" || true; }
+start_desktop() {
+  # Launch & bring to front so first-run prompts are visible
+  open -a "Docker" || open -a "Docker Desktop" || true
+  osascript -e 'tell application "Docker" to activate' >/dev/null 2>&1 || \
+  osascript -e 'tell application "Docker Desktop" to activate' >/dev/null 2>&1 || true
+}
 start_colima()   { log "🐳 Starting Colima..."; colima status >/dev/null 2>&1 || colima start; }
 
 wait_for_docker() {
