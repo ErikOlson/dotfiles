@@ -168,3 +168,54 @@ docker-status:
 	  echo "(!) mismatch: CLI is not pointed at Colima"; \
 	fi
 
+# --- Kubernetes Targets ---
+
+.PHONY: k8s-up k8s-down k8s-status k8s-kctx
+
+# --- Kubernetes local cluster wrapper ---
+# Usage:
+#   make k8s-up K8S_DIST=k3d     CLUSTER=dev
+#   make k8s-up K8S_DIST=kind    CLUSTER=dev
+#   make k8s-up K8S_DIST=minikube CLUSTER=dev
+#   make k8s-down K8S_DIST=...
+#   make k8s-status
+#   make k8s-kctx                 # print current kubectl context
+
+K8S_DIST ?= k3d          # choose: k3d | kind | minikube
+CLUSTER  ?= dev
+
+k8s-up:
+	@if [ "$(K8S_DIST)" = "k3d" ]; then \
+	  echo "▶ Creating k3d cluster '$(CLUSTER)'"; \
+	  k3d cluster create $(CLUSTER) --wait --kubeconfig-switch-context; \
+	elif [ "$(K8S_DIST)" = "kind" ]; then \
+	  echo "▶ Creating kind cluster '$(CLUSTER)'"; \
+	  kind create cluster --name $(CLUSTER); \
+	  kubectl config use-context kind-$(CLUSTER); \
+	elif [ "$(K8S_DIST)" = "minikube" ]; then \
+	  echo "▶ Creating minikube cluster '$(CLUSTER)' (docker driver)"; \
+	  minikube start -p $(CLUSTER) --driver=docker; \
+	  kubectl config use-context minikube; \
+	else \
+	  echo "❌ Unknown K8S_DIST ($(K8S_DIST)). Use k3d | kind | minikube."; exit 1; \
+	fi
+	@$(MAKE) k8s-status
+
+k8s-down:
+	@if [ "$(K8S_DIST)" = "k3d" ]; then \
+	  k3d cluster delete $(CLUSTER) || true; \
+	elif [ "$(K8S_DIST)" = "kind" ]; then \
+	  kind delete cluster --name $(CLUSTER) || true; \
+	elif [ "$(K8S_DIST)" = "minikube" ]; then \
+	  minikube delete -p $(CLUSTER) || true; \
+	else \
+	  echo "❌ Unknown K8S_DIST ($(K8S_DIST)). Use k3d | kind | minikube."; exit 1; \
+	fi
+
+k8s-status:
+	@echo "kubectl context: $$(kubectl config current-context 2>/dev/null || echo none)"
+	@kubectl get nodes -o wide 2>/dev/null || echo "(cluster not running)"
+
+k8s-kctx:
+	@kubectl config get-contexts
+
