@@ -19,7 +19,7 @@ cask "intellij-idea"
 cask "obsidian"
 cask "lens"
 cask "sublime-text"
-# cask "robloxstudio"
+cask "robloxstudio"
 
 # Docker CLI tools (keep these even if you switch backends)
 brew "docker"
