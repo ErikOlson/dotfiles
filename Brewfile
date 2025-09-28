@@ -25,9 +25,11 @@ cask "robloxstudio"
 brew "docker"
 brew "docker-buildx"
 brew "docker-compose"
+# Optional (Keychain integration if you ever run without Desktop)
+# brew "docker-credential-helper"  # osxkeychain helper :contentReference[oaicite:4]{index=4}
 
 # Docker Backends
-cask "docker"     # Docker Desktop (GUI, built-in k8s option)
+cask "docker-desktop"     # Docker Desktop (GUI, built-in k8s option)
 brew "colima"     # Lightweight VM backend (runs Docker daemon via Lima)
 
 # Kubernetes core CLIs
