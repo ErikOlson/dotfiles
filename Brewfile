@@ -7,6 +7,7 @@ brew "fd"
 brew "starship"
 brew "direnv"
 brew "zsh"
+brew "sox" #cli audio recorder
 
 cask "google-chrome"
 cask "ghostty"
@@ -20,6 +21,7 @@ cask "obsidian"
 cask "lens"
 cask "sublime-text"
 cask "robloxstudio"
+cask "blackhole-2ch" #configure multi-output device with this in Audio Midi Setup to be able to record system audio
 
 # Docker CLI tools (keep these even if you switch backends)
 brew "docker"

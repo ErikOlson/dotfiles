@@ -29,3 +29,16 @@ obs() {
   # If an argument is provided, open that file/vault. Otherwise, just open the app.
   open -a "Obsidian" "$1"
 }
+# --- docker dotfiles aliases ---
+alias docker-desktop='open -a Docker'
+alias docker-colima-start='colima start'
+alias docker-colima-stop='colima stop'
+alias docker-which-backend='
+  if /usr/bin/pgrep -f "Docker Desktop.app" >/dev/null 2>&1; then
+    echo "desktop"
+  elif command -v colima >/dev/null 2>&1 && colima status >/dev/null 2>&1; then
+    echo "colima"
+  else
+    echo "none"
+  fi
+'
