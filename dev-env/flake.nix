@@ -48,6 +48,9 @@
 
               # Nice-to-have for Claude Code project search, etc.
               pkgs.ripgrep
+
+              # Github CLI
+              pkgs.github-cli
             ];
 
             shellHook = ''

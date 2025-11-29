@@ -2,7 +2,7 @@
 
 A fully reproducible and portable macOS development environment using:
 
-- 🧰 [Homebrew](https://brew.sh) for native apps and CLI tools
+- 🧰 [Homebrew](https://brew.sh) for native apps and system-level CLI tools
 - ❄️ [Nix + flakes](https://nixos.org/) for isolated, versioned dev environments
 - 📂 Symbolic dotfile syncing with backup safety
 - 🔁 `bootstrap.sh` for clean setup on new machines
