@@ -22,6 +22,7 @@ cask "lens"
 cask "sublime-text"
 cask "robloxstudio"
 cask "blackhole-2ch" #configure multi-output device with this in Audio Midi Setup to be able to record system audio
+cask "mullvad-vpn" #vpn
 
 # Docker CLI tools (keep these even if you switch backends)
 brew "docker"
