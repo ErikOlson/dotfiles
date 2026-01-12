@@ -101,6 +101,18 @@
               if command -v gemini >/dev/null && command -v claude >/dev/null; then
                 echo "🤖 AI CLIs ready: 'gemini' and 'claude' (first run will prompt login)"
               fi
+
+              # NOTE:
+              # This devShell is used as a "global" CLI environment via direnv (~/.envrc).
+              # Some Nix Darwin SDK setups export DEVELOPER_DIR/SDKROOT, which overrides
+              # macOS's global xcode-select and causes warnings / toolchain weirdness
+              # (e.g. git: "unhandled Platform key FamilyDisplayName").
+              #
+              # We explicitly unset these here to preserve normal Apple CLT behavior.
+              # Long-term fix: move global CLI tools to a Nix profile / Home Manager,
+              # and reserve Apple SDK overrides for project-scoped devShells only.
+              unset DEVELOPER_DIR
+              unset SDKROOT
             '';
           };
         });
