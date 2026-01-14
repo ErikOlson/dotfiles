@@ -97,9 +97,18 @@
               EOF
               chmod +x "$AI_TOOLS_BIN/codex"
 
+              # --- OpenCode CLI wrapper (npx, no global install) ---
+              cat > "$AI_TOOLS_BIN/opencode" <<'EOF'
+              #!/usr/bin/env bash
+              # Use @latest for convenience, or pin a version for reproducibility:
+              # exec npx -y opencode-ai@0.0.0 "$@"
+              exec npx -y opencode-ai@latest "$@"
+              EOF
+              chmod +x "$AI_TOOLS_BIN/opencode"
+
               # Quick tip on first entry
-              if command -v gemini >/dev/null && command -v claude >/dev/null; then
-                echo "🤖 AI CLIs ready: 'gemini' and 'claude' (first run will prompt login)"
+              if command -v gemini >/dev/null && command -v claude >/dev/null && command -v codex >/dev/null && command -v opencode >/dev/null; then
+                echo "🤖 AI CLIs ready: 'gemini', 'claude', 'codex', and 'opencode' (first run will prompt login)"
               fi
 
               # NOTE:
@@ -118,4 +127,3 @@
         });
     };
 }
-
