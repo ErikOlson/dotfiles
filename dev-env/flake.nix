@@ -28,6 +28,7 @@
 
               # JavaScript / TypeScript
               pkgs.nodejs
+              pkgs.bun
               pkgs.nodePackages.eslint
               pkgs.nodePackages.prettier
               pkgs.typescript-language-server
@@ -51,6 +52,9 @@
 
               # Github CLI
               pkgs.github-cli
+
+              # GNU watch (from procps)
+              pkgs.procps
             ];
 
             shellHook = ''
