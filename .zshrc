@@ -6,8 +6,17 @@ eval "$(direnv hook zsh)"
 # Load starship prompt (modern prompt with git/path info)
 eval "$(starship init zsh)"
 
-# pgit tab completion
-eval "$(pgit completions zsh)"
+# Completion system
+autoload -Uz compinit && compinit
+
+# Deferred completions for direnv-provided tools (loaded after first prompt)
+_load_deferred_completions() {
+    if (( ! _pgit_comp_loaded )) && command -v pgit >/dev/null 2>&1; then
+        eval "$(pgit completions zsh)"
+        _pgit_comp_loaded=1
+    fi
+}
+precmd_functions+=(_load_deferred_completions)
 
 # Set editor
 export EDITOR="nvim"
