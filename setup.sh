@@ -54,5 +54,14 @@ if [ -x "${DOCKER_HELPERS}/docker-bootstrap.sh" ]; then
   "${DOCKER_HELPERS}/docker-bootstrap.sh" --backend "${DOCKER_BACKEND:-auto}" || true
 fi
 
+# 🔧 Install global CLI tools via nix profile
+echo "🔧 Installing global CLI tools via nix profile..."
+if command -v nix >/dev/null 2>&1; then
+  nix --extra-experimental-features 'nix-command flakes' profile install "${DOTFILES}/tools" --refresh
+  echo "✅ Global CLI tools installed"
+else
+  echo "⚠️  nix not found — skipping global CLI tools"
+fi
+
 echo "✅ Setup script complete. Symlinks, permissions, and Docker aliases ready."
 

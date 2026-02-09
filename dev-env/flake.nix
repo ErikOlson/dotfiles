@@ -4,10 +4,7 @@
   # ⚠️ Uses nixpkgs latest (unstable). Consider pinning for stability.
   inputs.nixpkgs.url = "github:nixos/nixpkgs";
 
-  # pgit from GitHub
-  inputs.pgit.url = "github:ErikOlson/pgit";
-
-  outputs = { self, nixpkgs, pgit }:
+  outputs = { self, nixpkgs }:
     let
       supportedSystems = [ "x86_64-darwin" "aarch64-darwin" "x86_64-linux" "aarch64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
@@ -50,17 +47,8 @@
               # Protobuf
               pkgs.protobuf
 
-              # Nice-to-have for Claude Code project search, etc.
-              pkgs.ripgrep
-
-              # Github CLI
-              pkgs.github-cli
-
               # GNU watch (from procps; also brings GNU ps/top/etc which can differ from macOS flags)
               pkgs.procps
-
-              # pgit git multiplexer - separate agentic process documentation from code product
-              pgit.packages.${system}.default
             ];
 
             shellHook = ''
