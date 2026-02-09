@@ -6,6 +6,9 @@ eval "$(direnv hook zsh)"
 # Load starship prompt (modern prompt with git/path info)
 eval "$(starship init zsh)"
 
+# pgit tab completion
+eval "$(pgit completions zsh)"
+
 # Set editor
 export EDITOR="nvim"
 
