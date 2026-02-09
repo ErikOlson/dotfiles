@@ -36,11 +36,11 @@
         "nixpkgs": "nixpkgs_2"
       },
       "locked": {
-        "lastModified": 1770672188,
-        "narHash": "sha256-nY8QE1ynAWXcBoKn/M9OTh+wNdYchR0MsYJoqB2R3bM=",
+        "lastModified": 1770676552,
+        "narHash": "sha256-l3+uCj5NgAOuROQl8IEQDTKoJpYOeS/2O7caBCtakaE=",
         "owner": "ErikOlson",
         "repo": "pgit",
-        "rev": "3d9f7713ca1492f535b35b2374b686f73f0f206e",
+        "rev": "7294f8a03ce1c5357b0dd737b5d97b8cfdbb28db",
         "type": "github"
       },
       "original": {
