@@ -1,4 +1,4 @@
-.PHONY: all bootstrap setup dev versions update clean doctor lint backup brew flake
+.PHONY: all bootstrap setup dev versions update clean doctor lint backup brew flake tools
 
 # --- Primary flow ---
 all: bootstrap
@@ -21,10 +21,14 @@ brew:
 
 flake:
 	cd ~/dotfiles/dev-env && nix --extra-experimental-features 'nix-command flakes' flake update
-	@echo "❄️ Flake updated."
+	@echo "❄️  dev-env flake updated."
 
-update: brew flake
-	@echo "✅ System packages updated (brew + nix flake)."
+tools:
+	cd ~/dotfiles/tools && nix --extra-experimental-features 'nix-command flakes' profile install .
+	@echo "❄️  tools profile updated."
+
+update: brew flake tools
+	@echo "✅ System packages updated (brew + nix flakes)."
 
 clean:
 	nix-collect-garbage -d

@@ -1,6 +1,40 @@
 {
   "nodes": {
+    "ccg": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1770768273,
+        "narHash": "sha256-BCENMsKTFxkvkEfcHzcjLJcCEHIE8Z7oKJ1NFdYSP70=",
+        "owner": "ErikOlson",
+        "repo": "ccg",
+        "rev": "da5e31f438c7947007eecb5696b5b538ac806071",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ErikOlson",
+        "repo": "ccg",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
+      "locked": {
+        "lastModified": 1770537093,
+        "narHash": "sha256-pF1quXG5wsgtyuPOHcLfYg/ft/QMr8NnX0i6tW2187s=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "fef9403a3e4d31b0a23f0bacebbec52c248fbb51",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
       "locked": {
         "lastModified": 1770673711,
         "narHash": "sha256-TSn6G/7kdeLbJlr3F96RZ7kfSttB0H2vEIfvbDqEJzA=",
@@ -15,7 +49,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_2": {
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1770537093,
         "narHash": "sha256-pF1quXG5wsgtyuPOHcLfYg/ft/QMr8NnX0i6tW2187s=",
@@ -33,14 +67,14 @@
     },
     "pgit": {
       "inputs": {
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1770676552,
-        "narHash": "sha256-l3+uCj5NgAOuROQl8IEQDTKoJpYOeS/2O7caBCtakaE=",
+        "lastModified": 1770748708,
+        "narHash": "sha256-H/Oz59VxCZpEvC85LW6/+6t4V+/tYkqyZ8DyCYBhZYk=",
         "owner": "ErikOlson",
         "repo": "pgit",
-        "rev": "7294f8a03ce1c5357b0dd737b5d97b8cfdbb28db",
+        "rev": "02c4ae20131ab0192653a9960337c0c4b8444992",
         "type": "github"
       },
       "original": {
@@ -51,7 +85,8 @@
     },
     "root": {
       "inputs": {
-        "nixpkgs": "nixpkgs",
+        "ccg": "ccg",
+        "nixpkgs": "nixpkgs_2",
         "pgit": "pgit"
       }
     }

@@ -4,9 +4,10 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs";
     pgit.url = "github:ErikOlson/pgit";
+    ccg.url = "github:ErikOlson/ccg";
   };
 
-  outputs = { nixpkgs, pgit, ... }:
+  outputs = { nixpkgs, pgit, ccg, ... }:
     let
       supportedSystems = [ "x86_64-darwin" "aarch64-darwin" "x86_64-linux" "aarch64-linux" ];
       forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f system);
@@ -19,6 +20,9 @@
             paths = [
               # Git multiplexer for process & product separation
               pgit.packages.${system}.default
+
+              # Claude Code Git — keep Claude files out of product repo
+              ccg.packages.${system}.default
 
               # GitHub CLI
               pkgs.github-cli
