@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1770768273,
-        "narHash": "sha256-BCENMsKTFxkvkEfcHzcjLJcCEHIE8Z7oKJ1NFdYSP70=",
+        "lastModified": 1770769278,
+        "narHash": "sha256-Vbo0xj4asEE7wD3QIuaXAxEMwAid62s/CPRlS+R1/AA=",
         "owner": "ErikOlson",
         "repo": "ccg",
-        "rev": "da5e31f438c7947007eecb5696b5b538ac806071",
+        "rev": "17359b1d82baf7c29209f7771e6ef65ee5c7cfc1",
         "type": "github"
       },
       "original": {
