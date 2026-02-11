@@ -38,6 +38,10 @@ backup_and_link "${DOTFILES}/.envrc"                   "${HOME}/.envrc"
 backup_and_link "${DOTFILES}/config/nvim"              "${HOME}/.config/nvim"
 backup_and_link "${DOTFILES}/config/ghostty"           "${HOME}/.config/ghostty"
 backup_and_link "${DOTFILES}/config/starship.toml"     "${HOME}/.config/starship.toml"
+# Enables nix-command and flakes globally so subsequent nix/make invocations
+# don't need --extra-experimental-features. Must be linked before make targets run.
+mkdir -p "${HOME}/.config/nix"
+backup_and_link "${DOTFILES}/config/nix/nix.conf"     "${HOME}/.config/nix/nix.conf"
 
 echo "🔒 Making .sh scripts executable..."
 find "${DOTFILES}" -type f -name "*.sh" -exec chmod +x {} \;
@@ -57,6 +61,9 @@ fi
 # 🔧 Install global CLI tools via nix profile
 echo "🔧 Installing global CLI tools via nix profile..."
 if command -v nix >/dev/null 2>&1; then
+  # Flag required here: setup.sh is the bootstrapper and runs before
+  # ~/.config/nix/nix.conf is active in the current shell session.
+  # After setup, the Makefile targets run without this flag.
   nix --extra-experimental-features 'nix-command flakes' profile install "${DOTFILES}/tools" --refresh
   echo "✅ Global CLI tools installed"
 else
