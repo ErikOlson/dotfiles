@@ -24,7 +24,7 @@ flake:
 	@echo "❄️  dev-env flake updated."
 
 tools:
-	cd ~/dotfiles/tools && nix --extra-experimental-features 'nix-command flakes' profile install .
+	nix --extra-experimental-features 'nix-command flakes' profile upgrade tools
 	@echo "❄️  tools profile updated."
 
 update: brew flake tools
