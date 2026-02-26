@@ -1,4 +1,4 @@
-.PHONY: all bootstrap setup dev versions update clean doctor lint backup brew flake tools
+.PHONY: all bootstrap setup dev versions update clean doctor lint backup brew flake tools check-nix-conf
 
 # --- Primary flow ---
 all: bootstrap
@@ -14,16 +14,20 @@ dev:
 
 # --- Package management ---
 
+check-nix-conf:
+	@test -f ~/.config/nix/nix.conf \
+	  || { echo "❌ ~/.config/nix/nix.conf not found. Run './setup.sh' first."; exit 1; }
+
 brew:
 	@echo "🍺 Updating Homebrew bundle..."
 	brew bundle --file=~/dotfiles/Brewfile
 	@echo "✅ Homebrew packages installed/updated."
 
-flake:
+flake: check-nix-conf
 	cd ~/dotfiles/dev-env && nix flake update
 	@echo "❄️  dev-env flake updated."
 
-tools:
+tools: check-nix-conf
 	nix profile upgrade tools
 	@echo "❄️  tools profile updated."
 
