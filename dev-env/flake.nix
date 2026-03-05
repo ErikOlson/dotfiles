@@ -82,7 +82,8 @@
               #!/usr/bin/env bash
               # Use @latest for convenience, or pin a version for reproducibility:
               #   exec npx -y @anthropic-ai/claude-code@1.0.83 "$@"
-              exec npx -y @anthropic-ai/claude-code@latest "$@"
+              # exec npx -y @anthropic-ai/claude-code@latest "$@" #npx defaulting to node-slim and not working with claude remote-control
+              exec node $(which npx) -y @anthropic-ai/claude-code@latest "$@"
               EOF
               chmod +x "$AI_TOOLS_BIN/claude"
 
