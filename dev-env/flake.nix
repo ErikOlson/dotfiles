@@ -49,6 +49,8 @@
 
               # GNU watch (from procps; also brings GNU ps/top/etc which can differ from macOS flags)
               pkgs.procps
+
+              pkgs.glow
             ];
 
             shellHook = ''
