@@ -51,6 +51,8 @@
               pkgs.procps
 
               pkgs.glow
+
+              pkgs.just
             ];
 
             shellHook = ''
